@@ -1,5 +1,7 @@
 package recomendador_libros.proyecto.nodes;
 
+import java.util.Set;
+
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -23,5 +25,5 @@ public class Autor {
 
     // Relaciones que pueda tener un autor.
     @Relationship(type = "INFLUENCIADO_POR", direction = Relationship.Direction.OUTGOING)
-    private Autor autor;
+    private Set<Autor> autores;
 }
