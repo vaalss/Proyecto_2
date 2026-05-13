@@ -1,10 +1,12 @@
 package recomendador_libros.proyecto.repositories;
 
-import recomendador_libros.proyecto.nodes.Usuario;
-import recomendador_libros.proyecto.nodes.Libro;
+import java.util.List;
+
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
-import java.util.List;
+
+import recomendador_libros.proyecto.nodes.Libro;
+import recomendador_libros.proyecto.nodes.Usuario;
 
 public interface UsuarioRepository extends Neo4jRepository<Usuario, Long> {
 
