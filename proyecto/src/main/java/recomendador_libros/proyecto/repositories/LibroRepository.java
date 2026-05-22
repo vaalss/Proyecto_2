@@ -30,5 +30,14 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     LIMIT 10
     """)
     List<Libro> recomendar(Long userId);
+
+    @Query("""
+    MATCH (libroBase:Libro {titulo: $tituloLibro})-[:ES_ESCRITO_POR|:PERTENECE_A|:TRATA_SOBRE|:TIENE_ESTILO]->(atributo)<-[:ES_ESCRITO_POR|:PERTENECE_A|:TRATA_SOBRE|:TIENE_ESTILO]-(libroRecomendado:Libro)
+    WITH libroRecomendado, count(atributo) AS coincidencias
+    ORDER BY coincidencias DESC
+    RETURN libroRecomendado
+    LIMIT 5
+    """)
+    List<Libro> findSimilarByAttributes(String tituloLibro);
     
 }
