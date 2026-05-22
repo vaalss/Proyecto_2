@@ -9,6 +9,8 @@ import recomendador_libros.proyecto.nodes.Libro;
 
 public interface LibroRepository extends Neo4jRepository<Libro, Long> {
 
+    List<Libro> findByTitulo(String titulo);
+    
     @Query("""
     MATCH (u:Usuario {id: $userId})-[:LE_GUSTA]->(l:Libro)
 
