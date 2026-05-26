@@ -11,6 +11,7 @@ import recomendador_libros.proyecto.nodes.Usuario;
 import java.util.Optional;
 import java.util.Set;
 import java.util.List;
+
 @Service
 public class RecomendacionService {
 
@@ -27,6 +28,10 @@ public class RecomendacionService {
 
     public List <Libro> generarSugerencias(String tituloLibro) {
         return libroRepository.findSimilarByAttributes(tituloLibro);
+    }
+
+    public List<Libro> obtenerRecomendacionesParaUsuario(Long userId) {
+        return libroRepository.recomendar(userId);
     }
 }
     

@@ -12,20 +12,24 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     List<Libro> findByTitulo(String titulo);
     
     @Query("""
-    MATCH (u:Usuario {id: $userId})-[:LE_GUSTA]->(l:Libro)
+    MATCH (u:Usuario {id: $userId})-[:LE_GUSTA]->(favorito:Libro)
 
-    OPTIONAL MATCH (l)-[:PERTENECE_A]->(g:Genero)<-[:PERTENECE_A]-(rec1:Libro)
-    OPTIONAL MATCH (l)-[:TRATA_SOBRE]->(t:Tematica)<-[:TRATA_SOBRE]-(rec2:Libro)
-    OPTIONAL MATCH (l)-[:ES_ESCRITO_POR]->(a:Autor)<-[:ES_ESCRITO_POR]-(rec3:Libro)
+    MATCH (favorito)-[relacion:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]->(atributo)<-[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]-(candidato:Libro)
+    
+    WHERE candidato IS NOT NULL
+        AND candidato <> favorito
+        AND NOT (u)-[:HA_LEIDO]->(candidato)
+        AND NOT (u)-[:LE_GUSTA]->(candidato)
+    
 
-    WITH collect(rec1) + collect(rec2) + collect(rec3) AS recs
+    WITH candidato, type(relacion) AS tipoRelacion
+    WITH candidato,
+        CASE tipoRelacion
+            WHEN 'ES_ESCRITO_POR' THEN 2
+            ELSE 1
+        END AS puntos
 
-    UNWIND recs AS rec
-    WITH rec, COUNT(*) AS score
-
-    WHERE rec IS NOT NULL
-
-    RETURN rec
+    RETURN candidato, sum(puntos) AS score
     ORDER BY score DESC
     LIMIT 10
     """)
