@@ -12,7 +12,7 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     List<Libro> findByTitulo(String titulo);
     
     @Query("""
-    MATCH (u:Usuario {id: $userId})-[:LE_GUSTA]->(favorito:Libro)
+    MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(favorito:Libro)
 
     MATCH (favorito)-[relacion:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]->(atributo)<-[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]-(candidato:Libro)
     
@@ -33,7 +33,7 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     ORDER BY score DESC
     LIMIT 10
     """)
-    List<Libro> recomendar(Long userId);
+    List<Libro> recomendar(String email);
 
     @Query("""
     MATCH (libroBase:Libro {titulo: $tituloLibro})-[:ES_ESCRITO_POR|:PERTENECE_A|:TRATA_SOBRE|:TIENE_ESTILO]->(atributo)<-[:ES_ESCRITO_POR|:PERTENECE_A|:TRATA_SOBRE|:TIENE_ESTILO]-(libroRecomendado:Libro)

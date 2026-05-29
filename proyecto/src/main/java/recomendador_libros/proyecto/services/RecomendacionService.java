@@ -30,8 +30,8 @@ public class RecomendacionService {
         return libroRepository.findSimilarByAttributes(tituloLibro);
     }
 
-    public List<Libro> obtenerRecomendacionesParaUsuario(Long userId) {
-        return libroRepository.recomendar(userId);
+    public List<Libro> obtenerRecomendacionesParaUsuario(String email) {
+        return libroRepository.recomendar(email);
     }
 }
     

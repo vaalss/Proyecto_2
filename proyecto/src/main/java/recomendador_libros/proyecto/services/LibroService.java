@@ -3,6 +3,7 @@ package recomendador_libros.proyecto.services;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 import recomendador_libros.proyecto.nodes.Libro;
 import recomendador_libros.proyecto.repositories.LibroRepository;
@@ -24,5 +25,17 @@ public class LibroService {
         }
 
         return existentes.get(0);
+    }
+
+    public List<Libro> obtenerTodos() {
+    return libroRepo.findAll();
+}
+
+    public Optional<Libro> obtenerPorId(Long id) {
+        return libroRepo.findById(id);
+    }
+
+    public void eliminar(Long id) {
+        libroRepo.deleteById(id);
     }
 }
