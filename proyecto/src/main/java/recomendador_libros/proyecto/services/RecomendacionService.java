@@ -10,6 +10,7 @@ import recomendador_libros.proyecto.nodes.Libro;
 import recomendador_libros.proyecto.nodes.Usuario;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,7 +32,18 @@ public class RecomendacionService {
     }
 
     public List<Libro> obtenerRecomendacionesParaUsuario(String email) {
-        return libroRepository.recomendar(email);
+        List<String> titulos = libroRepository.recomendarTitulos(email);
+        List<Libro> libros = new ArrayList<>();
+
+        for (String titulo : titulos) {
+            List<Libro> encontrados = libroRepository.findByTitulo(titulo);
+
+            if (!encontrados.isEmpty()) {
+                libros.add(encontrados.get(0));
+            }
+        }
+
+        return libros;
     }
 }
     
