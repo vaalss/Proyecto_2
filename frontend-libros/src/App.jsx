@@ -1,121 +1,58 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div
+      className="min-h-screen w-full flex items-center justify-center"
+      style={{ backgroundColor: '#000813' }}
+    >
+      <div
+        className="w-full max-w-sm p-8 rounded-lg"
+        style={{ backgroundColor: '#001d3d' }}
+      >
+        <h1
+          className="text-2xl font-bold text-center mb-2"
+          style={{ color: '#ffd60a' }}
+        >
+          Booky Tuky
+        </h1>
+        <h2 className="text-lg text-center text-white mb-6">
+          Inicio de sesión
+        </h2>
+
+        <div className="mb-4">
+          <label className="block text-white text-sm mb-1" htmlFor="usuario">
+            Usuario
+          </label>
+          <input
+            id="usuario"
+            type="text"
+            placeholder="Ingresa tu usuario"
+            className="w-full px-3 py-2 rounded text-white placeholder-gray-400 outline-none border border-transparent focus:border-yellow-400"
+            style={{ backgroundColor: '#013565' }}
+          />
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+
+        <div className="mb-6">
+          <label className="block text-white text-sm mb-1" htmlFor="contrasena">
+            Contraseña
+          </label>
+          <input
+            id="contrasena"
+            type="password"
+            placeholder="Ingresa tu contraseña"
+            className="w-full px-3 py-2 rounded text-white placeholder-gray-400 outline-none border border-transparent focus:border-yellow-400"
+            style={{ backgroundColor: '#013565' }}
+          />
         </div>
+
         <button
           type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          className="w-full py-2 rounded font-semibold text-black"
+          style={{ backgroundColor: '#ffc300' }}
         >
-          Count is {count}
+          Ingresar
         </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      </div>
+    </div>
   )
 }
 
