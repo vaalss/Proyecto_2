@@ -7,18 +7,22 @@ import org.springframework.stereotype.Service;
 
 import recomendador_libros.proyecto.nodes.Usuario;
 import recomendador_libros.proyecto.repositories.UsuarioRepository;
+import recomendador_libros.proyecto.nodes.Autor;
 import recomendador_libros.proyecto.nodes.Libro;
 import recomendador_libros.proyecto.repositories.LibroRepository;
+import recomendador_libros.proyecto.repositories.AutorRepository;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepo;
     private final LibroRepository libroRepo;
+    private final AutorRepository autorRepo;
 
-    public UsuarioService(UsuarioRepository usuarioRepo, LibroRepository libroRepo) {
+    public UsuarioService(UsuarioRepository usuarioRepo, LibroRepository libroRepo, AutorRepository autorRepo) {
         this.usuarioRepo = usuarioRepo;
         this.libroRepo = libroRepo;
+        this.autorRepo = autorRepo;
     }
 
     public Usuario guardarUsuario(Usuario usuario) {
@@ -47,6 +51,30 @@ public class UsuarioService {
         Libro libro = libroRepo.findById(libroId).orElseThrow(() -> new RuntimeException("Libro no encontrado"));
 
         usuario.getLibrosFavoritos().add(libro);
+        return usuarioRepo.save(usuario);
+    }
+
+    public Usuario agregarLibroLeido(Long usuarioId, Long libroId) {
+
+        Usuario usuario = usuarioRepo.findById(usuarioId) .orElseThrow(() -> 
+        new RuntimeException("Usuario no encontrado"));
+
+        Libro libro = libroRepo.findById(libroId).orElseThrow(() -> 
+        new RuntimeException("Libro no encontrado"));
+
+        usuario.getLibrosLeidos().add(libro);
+
+        return usuarioRepo.save(usuario);
+    }
+
+    public Usuario seguirAutor(Long usuarioId, Long autorId) {
+        Usuario usuario = usuarioRepo.findById(usuarioId).orElseThrow(() ->
+        new RuntimeException("Usuario no encontrado"));
+        Autor autor = autorRepo.findById(autorId).orElseThrow(() ->
+        new RuntimeException("Autor no encontrado"));
+
+        usuario.getAutoresSeguidos().add(autor);
+
         return usuarioRepo.save(usuario);
     }
 }

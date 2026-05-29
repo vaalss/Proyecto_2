@@ -43,4 +43,15 @@ public class UsuarioController {
     public Usuario agregarFavorito(@PathVariable Long usuarioId, @PathVariable Long libroId) {
         return usuarioService.agregarLibroFavorito(usuarioId, libroId);
     }
+
+    @PostMapping("/{usuarioId}/leidos/{libroId}")
+    public Usuario agregarLeido(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+        return usuarioService.agregarLibroLeido(usuarioId, libroId);
+    }
+
+    @PostMapping("/{usuarioId}/autores/{autorId}")
+    public Usuario seguirAutor(@PathVariable Long usuarioId, @PathVariable Long autorId) {
+
+        return usuarioService.seguirAutor(usuarioId, autorId);
+    }
 }
