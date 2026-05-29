@@ -14,9 +14,9 @@ public class RecomendacionController {
     @Autowired
     private RecomendacionService recomendacionService;
 
-    @GetMapping("/usuario/{userId}")
-    public List<Libro> obtenerRecomendacionesUsuario(@PathVariable Long userId) {
-        return recomendacionService.obtenerRecomendacionesParaUsuario(userId);
+    @GetMapping("/usuario/{email}")
+    public List<Libro> obtenerRecomendacionesUsuario(@PathVariable String email) {
+        return recomendacionService.obtenerRecomendacionesParaUsuario(email);
     }
 
     @GetMapping("/libro/{titulo}")
