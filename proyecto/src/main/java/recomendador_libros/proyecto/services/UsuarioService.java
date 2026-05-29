@@ -77,4 +77,40 @@ public class UsuarioService {
 
         return usuarioRepo.save(usuario);
     }
+
+    public Usuario eliminarLibroFavorito(Long usuarioId, Long libroId) {
+
+        Usuario usuario = usuarioRepo.findById(usuarioId).orElseThrow(() ->
+        new RuntimeException("Usuario no encontrado"));
+        Libro libro = libroRepo.findById(libroId).orElseThrow(() ->
+        new RuntimeException("Libro no encontrado"));
+
+        usuario.getLibrosFavoritos().remove(libro);
+
+        return usuarioRepo.save(usuario);
+    }
+
+    public Usuario eliminarLibroLeido(Long usuarioId, Long libroId) {
+
+        Usuario usuario = usuarioRepo.findById(usuarioId).orElseThrow(() ->
+        new RuntimeException("Usuario no encontrado"));
+
+        Libro libro = libroRepo.findById(libroId).orElseThrow(() ->
+        new RuntimeException("Libro no encontrado"));
+
+        usuario.getLibrosLeidos().remove(libro);
+        return usuarioRepo.save(usuario);
+    }
+
+    public Usuario dejarDeSeguirAutor(Long usuarioId, Long autorId) {
+
+        Usuario usuario = usuarioRepo.findById(usuarioId).orElseThrow(() ->
+        new RuntimeException("Usuario no encontrado"));
+
+        Autor autor = autorRepo.findById(autorId).orElseThrow(() ->
+        new RuntimeException("Autor no encontrado"));
+
+        usuario.getAutoresSeguidos().remove(autor);
+        return usuarioRepo.save(usuario);
+    }
 }

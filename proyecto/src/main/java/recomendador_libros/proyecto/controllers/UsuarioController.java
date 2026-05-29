@@ -54,4 +54,21 @@ public class UsuarioController {
 
         return usuarioService.seguirAutor(usuarioId, autorId);
     }
+
+    @DeleteMapping("/{usuarioId}/favoritos/{libroId}")
+    public Usuario eliminarFavorito(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+        return usuarioService.eliminarLibroFavorito(usuarioId, libroId);
+    }
+
+    @DeleteMapping("/{usuarioId}/leidos/{libroId}")
+    public Usuario eliminarLeido(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+
+        return usuarioService.eliminarLibroLeido(usuarioId, libroId);
+    }
+
+    @DeleteMapping("/{usuarioId}/autores/{autorId}")
+    public Usuario dejarDeSeguirAutor(@PathVariable Long usuarioId, @PathVariable Long autorId) {
+
+        return usuarioService.dejarDeSeguirAutor(usuarioId, autorId);
+    }
 }
