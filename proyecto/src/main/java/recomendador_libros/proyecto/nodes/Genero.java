@@ -11,10 +11,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Node("Genero")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "generosRelacionados")
+@ToString(exclude = "generosRelacionados")
+
 public class Genero {
 
     @Id
@@ -23,6 +30,7 @@ public class Genero {
 
     private String nombre;
 
+    @JsonIgnore
     @Relationship(type = "RELACIONADO_CON", direction = Relationship.Direction.OUTGOING)
     private Set<Genero> generosRelacionados;
 }
