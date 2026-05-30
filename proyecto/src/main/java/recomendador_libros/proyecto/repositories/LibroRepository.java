@@ -25,7 +25,8 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
 
     WITH candidato,
         CASE tipoRelacion
-            WHEN 'ES_ESCRITO_POR' THEN 2
+            WHEN 'ES_ESCRITO_POR' THEN 4
+            WHEN 'PERTENECE_A' THEN 2
             ELSE 1
         END AS puntos
 
@@ -36,6 +37,26 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     LIMIT 10
     """)
     List<String> recomendarTitulos(String email);
+
+    @Query("""
+    MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(favorito:Libro)
+
+    MATCH (favorito)-[:ES_ESCRITO_POR]->(autorFavorito:Autor)
+
+    MATCH (autorCandidato:Autor)-[:INFLUENCIADO_POR]->(autorFavorito)
+
+    MATCH (candidato:Libro)-[:ES_ESCRITO_POR]->(autorCandidato)
+
+    WHERE NOT (u)-[:LE_GUSTA]->(candidato)
+    AND NOT (u)-[:HA_LEIDO]->(candidato)
+
+    WITH candidato, count(*) AS score
+
+    RETURN candidato.titulo
+    ORDER BY score DESC
+    LIMIT 10
+    """)
+    List<String> recomendarPorInfluencia(String email);
 
     @Query("""
     MATCH (libroBase:Libro {titulo: $tituloLibro})

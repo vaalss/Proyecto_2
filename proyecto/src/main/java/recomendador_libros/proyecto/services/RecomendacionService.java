@@ -11,6 +11,7 @@ import recomendador_libros.proyecto.nodes.Usuario;
 import java.util.Optional;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Service
@@ -42,7 +43,14 @@ public class RecomendacionService {
     }
 
     public List<Libro> obtenerRecomendacionesParaUsuario(String email) {
-        List<String> titulos = libroRepository.recomendarTitulos(email);
+        List<String> directas = libroRepository.recomendarTitulos(email);
+        List<String> influencias = libroRepository.recomendarPorInfluencia(email);
+
+        LinkedHashSet<String> titulos = new LinkedHashSet<>();
+
+        titulos.addAll(directas);
+        titulos.addAll(influencias);
+
         List<Libro> libros = new ArrayList<>();
 
         for (String titulo : titulos) {
@@ -53,7 +61,7 @@ public class RecomendacionService {
             }
         }
 
-        return libros;
+        return libros.stream().limit(10).toList();
     }
 }
     
