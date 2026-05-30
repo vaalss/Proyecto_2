@@ -27,8 +27,18 @@ public class RecomendacionService {
         return usuario.map(Usuario::getLibrosFavoritos).orElse(Set.of());
     }
 
-    public List <Libro> generarSugerencias(String tituloLibro) {
-        return libroRepository.findSimilarByAttributes(tituloLibro);
+    public List<Libro> generarSugerencias(String tituloLibro) {
+        List<String> titulos = libroRepository.findSimilarTitles(tituloLibro);
+        List<Libro> libros = new ArrayList<>();
+
+        for (String titulo : titulos) {
+            List<Libro> encontrados = libroRepository.findByTitulo(titulo);
+            if (!encontrados.isEmpty()) {
+                libros.add(encontrados.get(0));
+            }
+        }
+
+        return libros;
     }
 
     public List<Libro> obtenerRecomendacionesParaUsuario(String email) {
