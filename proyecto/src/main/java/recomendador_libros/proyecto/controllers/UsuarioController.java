@@ -1,15 +1,17 @@
 package recomendador_libros.proyecto.controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import recomendador_libros.proyecto.nodes.Usuario;
 import recomendador_libros.proyecto.services.UsuarioService;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 @CrossOrigin(origins = "*")
 public class UsuarioController {
 
@@ -17,6 +19,14 @@ public class UsuarioController {
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Usuario> login(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        return usuarioService.loginPorEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(401).build());
     }
 
     @PostMapping

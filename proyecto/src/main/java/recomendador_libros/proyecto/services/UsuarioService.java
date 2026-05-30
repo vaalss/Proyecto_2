@@ -25,6 +25,10 @@ public class UsuarioService {
         this.autorRepo = autorRepo;
     }
 
+    public Optional<Usuario> loginPorEmail(String email) {
+        return usuarioRepo.findByEmail(email);
+    }
+
     public Usuario guardarUsuario(Usuario usuario) {
         Optional<Usuario> existente = usuarioRepo.findByEmail(usuario.getEmail());
         if (existente.isPresent()) {
