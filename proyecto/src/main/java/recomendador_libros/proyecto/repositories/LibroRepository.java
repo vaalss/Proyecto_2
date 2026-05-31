@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.data.repository.query.Param;
 
 import recomendador_libros.proyecto.nodes.Libro;
 
@@ -74,17 +75,18 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
             """)
     List<String> findSimilarTitles(String tituloLibro);
 
-    @Query("MATCH (target:Libro {id: $libroId}) " +
-            "OPTIONAL MATCH (target)-[:PERTENECE_A|TIENE_ESTILO|ESCRITO_POR|TIENE_TEMATICA]->(atributoTarget) " +
-            "WITH target, collect(DISTINCT atributoTarget) AS atributosLibro " +
-            "OPTIONAL MATCH (u:Usuario {id: $usuarioId})-[r:FAVORITO|LEIDO]->(likedBook:Libro) " +
-            "OPTIONAL MATCH (likedBook)-[:PERTENECE_A|TIENE_ESTILO|ESCRITO_POR|TIENE_TEMATICA]->(atributo) " +
-            "WITH atributosLibro, collect(DISTINCT atributo) AS gustosUsuario " +
-            "WITH atributosLibro, gustosUsuario, [a IN atributosLibro WHERE a IN gustosUsuario] AS interseccion " +
+    @Query("MATCH (target:Libro) WHERE id(target) = $libroId " +
+            "OPTIONAL MATCH (target)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(atributoTarget) " +
+            "WITH target, collect(DISTINCT id(atributoTarget)) AS objLibro " +
+            "OPTIONAL MATCH (u:Usuario) WHERE id(u) = $usuarioId " +
+            "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(likedBook:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(atributo) "
+            +
+            "WITH objLibro, collect(DISTINCT id(atributo)) AS gustos " +
+            "WITH objLibro, gustos, [a IN objLibro WHERE a IN gustos] AS interseccion " +
             "RETURN CASE " +
-            "  WHEN size(gustosUsuario) = 0 THEN toInteger(rand() * 20 + 75) " +
-            "  WHEN size(atributosLibro) = 0 THEN 50 " +
-            "  ELSE toInteger((toFloat(size(interseccion)) / size(atributosLibro)) * 100) " +
+            "  WHEN size(gustos) = 0 THEN toInteger(rand() * 20 + 75) " +
+            "  WHEN size(objLibro) = 0 THEN 50 " +
+            "  ELSE toInteger((toFloat(size(interseccion)) / size(objLibro)) * 100) " +
             "END")
-    Integer calcularPorcentajeMatch(Long usuarioId, Long libroId);
+    Integer calcularPorcentajeMatch(@Param("usuarioId") Long usuarioId, @Param("libroId") Long libroId);
 }

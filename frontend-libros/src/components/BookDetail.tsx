@@ -22,7 +22,7 @@ const SIMILAR_BOOKS = [
   { id: 993, title: "Eleanor Oliphant is Completely Fine", match: 89, coverUrl: "https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=300&q=80" },
 ];
 
-const ANIMATION_DURATION = 300; 
+const ANIMATION_DURATION = 300;
 
 export default function BookDetail({ book, onClose }: BookDetailProps) {
   const [phase, setPhase] = useState<"enter" | "visible" | "exit">("enter");
@@ -60,7 +60,6 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
       }}
       onClick={handleClose}
     >
-      {/* Contenedor Principal con Scroll Oculto pero Funcional */}
       <div
         className="relative w-full h-full md:w-full md:max-w-6xl md:h-[90vh] md:rounded-2xl overflow-hidden overflow-y-auto bg-card shadow-2xl transform-gpu [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         style={{
@@ -79,13 +78,13 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
             backgroundImage: `url(${book.urlPortada})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            filter: "blur(24px) brightness(0.35)", 
+            filter: "blur(24px) brightness(0.35)",
             willChange: "transform"
           }}
         />
         <div className="absolute inset-0 bg-background/80 z-0 pointer-events-none" />
 
-        {/* Botón Cerrar Flotante */}
+        {/* Botón Cerrar */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 md:top-6 md:right-6 z-50 flex items-center justify-center w-10 h-10 rounded-full bg-background/30 backdrop-blur-md text-foreground border border-border/50 hover:bg-background/50 hover:scale-110 active:scale-90 transition-all duration-200"
@@ -97,7 +96,7 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
         <div className="relative z-10 px-6 py-10 md:px-12 lg:px-16 min-h-full flex flex-col">
           <div className="flex flex-col md:flex-row gap-8 lg:gap-12 w-full mx-auto items-start">
             
-            {/* Columna Izquierda: Portada */}
+            {/* Portada */}
             <div className="w-48 md:w-64 shrink-0 mx-auto md:mx-0 z-20">
               <img
                 src={book.urlPortada}
@@ -106,15 +105,13 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
               />
             </div>
 
-            {/* Columna Derecha: Información Reorganizada */}
+            {/* Información */}
             <div className="flex flex-col flex-1 min-w-0 pt-2">
-              
-              {/* 1. Título */}
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight text-foreground text-balance mb-4">
                 {book.titulo}
               </h1>
 
-              {/* 2. Metadatos Principales */}
+              {/* Metadatos */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-foreground/80 mb-5">
                 <span className="flex items-center gap-1.5 font-bold text-primary bg-primary/15 px-3 py-1 rounded-md border border-primary/20">
                   <Star size={14} className="fill-primary" />
@@ -134,40 +131,31 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
                 </span>
               </div>
 
-              {/* 3. Clasificación (Estilo y Temáticas subidas) */}
+              {/* Clasificación */}
               <div className="flex flex-wrap items-center gap-2 mb-6">
-                {/* Etiqueta de Estilo */}
                 {book.estilo && (
                   <span className="flex items-center text-xs font-bold px-3 py-1.5 rounded-md bg-secondary text-secondary-foreground border border-border/50 shadow-sm">
-                    <span className="text-[10px] uppercase tracking-wider opacity-70 mr-1.5 font-semibold">
-                      Estilo:
-                    </span>
+                    <span className="text-[10px] uppercase tracking-wider opacity-70 mr-1.5 font-semibold">Estilo:</span>
                     {book.estilo}
                   </span>
                 )}
-                
-                {/* Etiquetas de Temática */}
                 {book.tematica && book.tematica.map((tag) => (
                   <span
                     key={tag}
                     className="flex items-center text-xs font-semibold px-3 py-1.5 rounded-md bg-background/30 backdrop-blur-md text-foreground/90 border border-border/30"
                   >
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1.5 font-bold">
-                      Temática:
-                    </span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1.5 font-bold">Temática:</span>
                     {tag}
                   </span>
                 ))}
               </div>
 
-              {/* 4. Botones de Acción (Subidos, más compactos y en línea) */}
+              {/* Botones */}
               <div className="flex flex-row flex-wrap items-center gap-3 mb-8 justify-start">
                 <button
                   onClick={() => setFav((v) => !v)}
                   className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95 shadow-md ${
-                    fav
-                      ? "bg-primary text-primary-foreground border border-primary/50 shadow-primary/30"
-                      : "bg-background/50 backdrop-blur-md text-foreground border border-border/50 hover:bg-background/70 hover:border-primary/50"
+                    fav ? "bg-primary text-primary-foreground border border-primary/50 shadow-primary/30" : "bg-background/50 backdrop-blur-md text-foreground border border-border/50 hover:bg-background/70 hover:border-primary/50"
                   }`}
                 >
                   <Heart size={16} className={fav ? "fill-current" : ""} />
@@ -177,9 +165,7 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
                 <button
                   onClick={() => setRead((v) => !v)}
                   className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95 shadow-md ${
-                    read
-                      ? "bg-primary/20 backdrop-blur-md text-primary border border-primary/40"
-                      : "bg-background/50 backdrop-blur-md text-foreground border border-border/50 hover:bg-background/70"
+                    read ? "bg-primary/20 backdrop-blur-md text-primary border border-primary/40" : "bg-background/50 backdrop-blur-md text-foreground border border-border/50 hover:bg-background/70"
                   }`}
                 >
                   <CheckCircle size={16} className={read ? "text-primary" : "text-muted-foreground"} />
@@ -189,9 +175,7 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
                 <button
                   onClick={() => setNotInterested((v) => !v)}
                   className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 active:scale-95 shadow-md ${
-                    notInterested
-                      ? "bg-red-500/15 backdrop-blur-md text-red-500 border border-red-500/30"
-                      : "bg-background/20 backdrop-blur-md text-muted-foreground border border-transparent hover:bg-background/40 hover:border-border/50"
+                    notInterested ? "bg-red-500/15 backdrop-blur-md text-red-500 border border-red-500/30" : "bg-background/20 backdrop-blur-md text-muted-foreground border border-transparent hover:bg-background/40 hover:border-border/50"
                   }`}
                 >
                   <ThumbsDown size={16} className={notInterested ? "fill-current" : ""} />
@@ -199,19 +183,15 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
                 </button>
               </div>
 
-              {/* 5. Sinopsis (Desplazada hacia abajo) */}
               <p className="text-foreground/90 leading-relaxed text-base md:text-lg text-pretty max-w-3xl">
                 {book.sinopsis}
               </p>
-
             </div>
           </div>
 
-          {/* ── Sección de Títulos Similares (Línea de separación eliminada) ── */}
+          {/* Títulos similares */}
           <div className="w-full relative z-10 mt-16">
-            <h2 className="text-xl font-bold text-foreground mb-6 tracking-wide drop-shadow-md">
-              Títulos similares
-            </h2>
+            <h2 className="text-xl font-bold text-foreground mb-6 tracking-wide drop-shadow-md">Títulos similares</h2>
             <div className="flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory will-change-scroll">
               {SIMILAR_BOOKS.map((simBook) => (
                 <button
