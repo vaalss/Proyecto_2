@@ -4,10 +4,14 @@ import { Book } from "../types"
 import Navbar from "../components/Navbar"
 import HeroSection from "../components/HeroSection"
 import CarouselRow from "../components/CarouselRow"
+import BookDetail from "../components/BookDetail"
 
 export default function Home() {
   const [libros, setLibros] = useState<Book[]>([])
   const [cargando, setCargando] = useState(true)
+  
+  // 1. Creamos el estado para saber qué libro quiere ver el usuario
+  const [libroSeleccionado, setLibroSeleccionado] = useState<Book | null>(null)
 
   useEffect(() => {
     const fetchLibros = async () => {
@@ -21,6 +25,7 @@ export default function Home() {
             autor: l.autor ? l.autor.nombre : "Autor Anónimo",
             sinopsis: l.sinopsis || "Sin sinopsis disponible.",
             genero: l.generos && l.generos.length > 0 ? l.generos[0].nombre : "General",
+            estilo: l.estilo ? l.estilo.nombre : "Sin Estilo", // <--- LA SOLUCIÓN
             tematica: l.tematicas ? l.tematicas.map((t: any) => t.nombre) : [],
             urlPortada: l.urlPortada || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400",
             año: 2026
@@ -45,22 +50,6 @@ export default function Home() {
             Booky <span className="text-primary">Tuky</span>
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0s' }}></div>
-          <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.15s' }}></div>
-          <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0.3s' }}></div>
-        </div>
-        <p className="text-muted-foreground font-medium text-sm animate-pulse">
-          Preparando tu biblioteca...
-        </p>
-      </div>
-    )
-  }
-
-  if (libros.length === 0) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center text-xl font-bold p-8 text-center">
-        <p>Tu base de datos de Neo4j está vacía (0 libros).</p>
       </div>
     )
   }
@@ -68,14 +57,26 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
-      <HeroSection booksPool={libros} />
+      
+      {/* 2. Le pasamos la función setLibroSeleccionado a las secciones */}
+      <HeroSection booksPool={libros} onOpenDetail={setLibroSeleccionado} />
+      
       <section className="pt-8 pb-20">
-        <CarouselRow key="todos" titulo="Todos los libros disponibles" books={libros} dismissable={false} />
-        <CarouselRow key="recomendaciones" titulo="Sugerencias del recomendador" books={libros.slice().reverse()} dismissable={true} />
+        <CarouselRow key="todos" titulo="Todos los libros disponibles" books={libros} onOpenDetail={setLibroSeleccionado} dismissable={false} />
+        <CarouselRow key="recomendaciones" titulo="Sugerencias del recomendador" books={libros.slice().reverse()} onOpenDetail={setLibroSeleccionado} dismissable={true} />
       </section>
+      
       <footer className="border-t border-border px-6 md:px-12 py-8 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} Booky Tuky
       </footer>
+
+      {/* 3. Si el usuario seleccionó un libro, dibujamos el modal de detalles */}
+      {libroSeleccionado && (
+        <BookDetail 
+          book={libroSeleccionado} 
+          onClose={() => setLibroSeleccionado(null)} 
+        />
+      )}
     </main>
   )
 }

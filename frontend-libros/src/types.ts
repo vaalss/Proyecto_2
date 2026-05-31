@@ -4,6 +4,7 @@ export interface Book {
   autor: string
   sinopsis: string
   genero: string
+  estilo?: string
   tematica: string[]
   urlPortada: string
   año: number

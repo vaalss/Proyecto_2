@@ -18,7 +18,10 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    if (searchOpen) inputRef.current?.focus()
+    if (searchOpen) {
+      // Pequeño timeout para permitir que la animación empiece antes de enfocar
+      setTimeout(() => inputRef.current?.focus(), 100)
+    }
   }, [searchOpen])
 
   useEffect(() => {
@@ -44,16 +47,31 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center">
-          {searchOpen ? (
-            <div className="flex items-center gap-2 bg-secondary border border-border rounded-md px-3 py-1.5 animate-in fade-in slide-in-from-right-4 duration-200">
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-              <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar..." className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none w-48" />
-              <button onClick={() => { setSearchOpen(false); setQuery("") }} className="text-muted-foreground hover:text-foreground transition-colors"><X className="h-4 w-4" /></button>
-            </div>
-          ) : (
-            <button onClick={() => setSearchOpen(true)} className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-secondary"><Search className="h-5 w-5" /></button>
-          )}
+        
+        {/* Contenedor Animado de Búsqueda */}
+        <div className={`relative flex items-center transition-all duration-300 ease-in-out h-9 ${searchOpen ? 'w-56' : 'w-9'}`}>
+          {/* Input Expandible */}
+          <div className={`absolute right-0 flex items-center gap-2 bg-secondary border border-border rounded-full py-1.5 px-3 transition-all duration-300 ease-in-out w-full h-full ${searchOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <input 
+              ref={inputRef} 
+              value={query} 
+              onChange={(e) => setQuery(e.target.value)} 
+              placeholder="Buscar..." 
+              className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none w-full" 
+            />
+            <button onClick={() => { setSearchOpen(false); setQuery("") }} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Botón Lupa (Estado Cerrado) */}
+          <button 
+            onClick={() => setSearchOpen(true)} 
+            className={`absolute right-0 p-2 text-muted-foreground hover:text-foreground transition-all duration-300 rounded-full hover:bg-secondary h-9 w-9 flex items-center justify-center ${searchOpen ? 'opacity-0 invisible scale-50' : 'opacity-100 visible scale-100'}`}
+          >
+            <Search className="h-5 w-5" />
+          </button>
         </div>
 
         <div ref={menuRef} className="relative">

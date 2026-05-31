@@ -44,7 +44,7 @@ function MarqueeRow({ covers, direction, duration }: { covers: string[], directi
   const animationName = direction === "left" ? "marquee-left" : "marquee-right"
 
   return (
-    <div className="flex overflow-hidden w-full mb-4 opacity-40">
+    <div className="flex overflow-hidden w-full mb-4 opacity-90">
       <div
         className={direction === "left" ? "animate-marquee-left" : "animate-marquee-right"}
         style={{ animationDuration: duration }}
@@ -146,7 +146,7 @@ export default function Login() {
         <MarqueeRow covers={row3} direction="left" duration="50s" />
       </div>
 
-      <div className="absolute inset-0 bg-foreground/20" aria-hidden="true" />
+      <div className="absolute inset-0 bg-foreground/10" aria-hidden="true" />
 
       {/* Tarjeta de Login */}
       <div className="relative z-10 w-full max-w-sm mx-4">

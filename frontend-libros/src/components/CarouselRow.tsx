@@ -3,8 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Book } from "../types"
 import BookCard from "./BookCard"
 
-export default function CarouselRow({ titulo, books, dismissable = false }: { titulo: string; books: Book[]; dismissable?: boolean }) {
-  const viewportRef = useRef<HTMLDivElement>(null)
+export default function CarouselRow({ titulo, books, dismissable = false, onOpenDetail }: { titulo: string; books: Book[]; dismissable?: boolean; onOpenDetail?: (book: Book) => void }) {  const viewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const [items, setItems] = useState<Book[]>(books)
   const [removingIds, setRemovingIds] = useState<number[]>([])
@@ -73,8 +72,7 @@ export default function CarouselRow({ titulo, books, dismissable = false }: { ti
           <div ref={trackRef} className="flex gap-3" style={{ transform: `translateX(-${offset}px)`, transition: "transform 420ms cubic-bezier(0.4, 0, 0.2, 1)", willChange: "transform" }}>
             {items.map((book) => (
               <div key={book.id} className={`flex-shrink-0 transition-all duration-300 ease-out ${removingIds.includes(book.id) ? "w-0 opacity-0 scale-75 -translate-y-3 overflow-hidden -mr-3" : "w-32 md:w-40"}`}>
-                <BookCard book={book} dismissable={dismissable} onDismiss={handleDismiss} />
-              </div>
+                <BookCard book={book} dismissable={dismissable} onDismiss={handleDismiss} onClick={() => onOpenDetail && onOpenDetail(book)} />              </div>
             ))}
           </div>
         </div>

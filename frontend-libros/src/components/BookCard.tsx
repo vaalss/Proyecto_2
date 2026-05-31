@@ -2,11 +2,12 @@ import { useState } from "react"
 import { BookOpen } from "lucide-react"
 import { Book } from "../types"
 
-export default function BookCard({ book, dismissable = false, onDismiss }: { book: Book; dismissable?: boolean; onDismiss?: (id: number) => void }) {
+export default function BookCard({ book, dismissable = false, onDismiss, onClick }: { book: Book; dismissable?: boolean; onDismiss?: (id: number) => void; onClick?: () => void }) {
   const [imgError, setImgError] = useState(false)
 
   return (
-    <div className="group relative w-full cursor-pointer">
+    // Agregamos el onClick aquí en el div principal
+    <div className="group relative w-full cursor-pointer" onClick={onClick}>
       <div className="relative aspect-[2/3] overflow-hidden rounded-md bg-muted transition-transform duration-300 ease-out group-hover:scale-110 group-hover:z-10 group-hover:shadow-2xl group-hover:shadow-border">
         {!imgError ? (
           <img src={book.urlPortada} alt={`Portada de ${book.titulo}`} className="w-full h-full object-cover" onError={() => setImgError(true)} />
