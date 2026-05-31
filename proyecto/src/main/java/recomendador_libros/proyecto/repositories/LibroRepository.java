@@ -10,68 +10,81 @@ import recomendador_libros.proyecto.nodes.Libro;
 public interface LibroRepository extends Neo4jRepository<Libro, Long> {
 
     List<Libro> findByTitulo(String titulo);
-    
+
     @Query("""
-    MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(favorito:Libro)
+            MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(favorito:Libro)
 
-    MATCH (favorito)-[relacion:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]->(atributo)<-[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]-(candidato:Libro)
+            MATCH (favorito)-[relacion:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]->(atributo)<-[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]-(candidato:Libro)
 
-    WHERE candidato IS NOT NULL
-        AND candidato <> favorito
-        AND NOT (u)-[:HA_LEIDO]->(candidato)
-        AND NOT (u)-[:LE_GUSTA]->(candidato)
+            WHERE candidato IS NOT NULL
+                AND candidato <> favorito
+                AND NOT (u)-[:HA_LEIDO]->(candidato)
+                AND NOT (u)-[:LE_GUSTA]->(candidato)
 
-    WITH candidato, type(relacion) AS tipoRelacion
+            WITH candidato, type(relacion) AS tipoRelacion
 
-    WITH candidato,
-        CASE tipoRelacion
-            WHEN 'ES_ESCRITO_POR' THEN 4
-            WHEN 'PERTENECE_A' THEN 2
-            ELSE 1
-        END AS puntos
+            WITH candidato,
+                CASE tipoRelacion
+                    WHEN 'ES_ESCRITO_POR' THEN 4
+                    WHEN 'PERTENECE_A' THEN 2
+                    ELSE 1
+                END AS puntos
 
-    WITH candidato, sum(puntos) AS score
+            WITH candidato, sum(puntos) AS score
 
-    RETURN candidato.titulo
-    ORDER BY score DESC
-    LIMIT 10
-    """)
+            RETURN candidato.titulo
+            ORDER BY score DESC
+            LIMIT 10
+            """)
     List<String> recomendarTitulos(String email);
 
     @Query("""
-    MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(favorito:Libro)
+            MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(favorito:Libro)
 
-    MATCH (favorito)-[:ES_ESCRITO_POR]->(autorFavorito:Autor)
+            MATCH (favorito)-[:ES_ESCRITO_POR]->(autorFavorito:Autor)
 
-    MATCH (autorCandidato:Autor)-[:INFLUENCIADO_POR]->(autorFavorito)
+            MATCH (autorCandidato:Autor)-[:INFLUENCIADO_POR]->(autorFavorito)
 
-    MATCH (candidato:Libro)-[:ES_ESCRITO_POR]->(autorCandidato)
+            MATCH (candidato:Libro)-[:ES_ESCRITO_POR]->(autorCandidato)
 
-    WHERE NOT (u)-[:LE_GUSTA]->(candidato)
-    AND NOT (u)-[:HA_LEIDO]->(candidato)
+            WHERE NOT (u)-[:LE_GUSTA]->(candidato)
+            AND NOT (u)-[:HA_LEIDO]->(candidato)
 
-    WITH candidato, count(*) AS score
+            WITH candidato, count(*) AS score
 
-    RETURN candidato.titulo
-    ORDER BY score DESC
-    LIMIT 10
-    """)
+            RETURN candidato.titulo
+            ORDER BY score DESC
+            LIMIT 10
+            """)
     List<String> recomendarPorInfluencia(String email);
 
     @Query("""
-    MATCH (libroBase:Libro {titulo: $tituloLibro})
-        -[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]->(atributo)
-        <-[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]-
-        (libroRecomendado:Libro)
+            MATCH (libroBase:Libro {titulo: $tituloLibro})
+                -[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]->(atributo)
+                <-[:ES_ESCRITO_POR|PERTENECE_A|TRATA_SOBRE|TIENE_ESTILO]-
+                (libroRecomendado:Libro)
 
-    WHERE libroRecomendado <> libroBase
+            WHERE libroRecomendado <> libroBase
 
-    WITH libroRecomendado, count(atributo) AS coincidencias
+            WITH libroRecomendado, count(atributo) AS coincidencias
 
-    RETURN libroRecomendado.titulo
-    ORDER BY coincidencias DESC
-    LIMIT 5
-    """)
+            RETURN libroRecomendado.titulo
+            ORDER BY coincidencias DESC
+            LIMIT 5
+            """)
     List<String> findSimilarTitles(String tituloLibro);
-    
+
+    @Query("MATCH (target:Libro {id: $libroId}) " +
+            "OPTIONAL MATCH (target)-[:PERTENECE_A|TIENE_ESTILO|ESCRITO_POR|TIENE_TEMATICA]->(atributoTarget) " +
+            "WITH target, collect(DISTINCT atributoTarget) AS atributosLibro " +
+            "OPTIONAL MATCH (u:Usuario {id: $usuarioId})-[r:FAVORITO|LEIDO]->(likedBook:Libro) " +
+            "OPTIONAL MATCH (likedBook)-[:PERTENECE_A|TIENE_ESTILO|ESCRITO_POR|TIENE_TEMATICA]->(atributo) " +
+            "WITH atributosLibro, collect(DISTINCT atributo) AS gustosUsuario " +
+            "WITH atributosLibro, gustosUsuario, [a IN atributosLibro WHERE a IN gustosUsuario] AS interseccion " +
+            "RETURN CASE " +
+            "  WHEN size(gustosUsuario) = 0 THEN toInteger(rand() * 20 + 75) " +
+            "  WHEN size(atributosLibro) = 0 THEN 50 " +
+            "  ELSE toInteger((toFloat(size(interseccion)) / size(atributosLibro)) * 100) " +
+            "END")
+    Integer calcularPorcentajeMatch(Long usuarioId, Long libroId);
 }
