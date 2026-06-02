@@ -8,37 +8,80 @@ import BookDetail from "../components/BookDetail"
 
 export default function Home() {
   const [libros, setLibros] = useState<Book[]>([])
+  const [librosHero, setLibrosHero] = useState<Book[]>([])
+  // NUEVO: Arreglo dinámico para guardar todos los carruseles que mande el backend
+  const [netflixRows, setNetflixRows] = useState<{titulo: string, libros: Book[]}[]>([]) 
   const [cargando, setCargando] = useState(true)
-  
-  // 1. Creamos el estado para saber qué libro quiere ver el usuario
   const [libroSeleccionado, setLibroSeleccionado] = useState<Book | null>(null)
 
+  // Función auxiliar para formatear los libros que vienen de Neo4j al formato React
+  const formatBook = (l: any): Book => ({
+    id: l.id,
+    titulo: l.titulo,
+    autor: l.autor ? l.autor.nombre : "Autor Anónimo",
+    sinopsis: l.sinopsis || "Sin sinopsis disponible.",
+    genero: l.generos && l.generos.length > 0 ? l.generos[0].nombre : "General",
+    estilo: l.estilo ? l.estilo.nombre : "Sin Estilo",
+    tematica: l.tematicas ? l.tematicas.map((t: any) => t.nombre) : [],
+    urlPortada: l.urlPortada || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400",
+    año: 2026,
+    matchPercentage: l.matchPercentage // Conservamos el porcentaje si el backend lo incluye
+  })
+
   useEffect(() => {
-    const fetchLibros = async () => {
+    const fetchAllData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/libros")
-        if (response.ok) {
-          const data = await response.json()
-          const librosFormateados = data.map((l: any) => ({
-            id: l.id,
-            titulo: l.titulo,
-            autor: l.autor ? l.autor.nombre : "Autor Anónimo",
-            sinopsis: l.sinopsis || "Sin sinopsis disponible.",
-            genero: l.generos && l.generos.length > 0 ? l.generos[0].nombre : "General",
-            estilo: l.estilo ? l.estilo.nombre : "Sin Estilo", // <--- LA SOLUCIÓN
-            tematica: l.tematicas ? l.tematicas.map((t: any) => t.nombre) : [],
-            urlPortada: l.urlPortada || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400",
-            año: 2026
-          }))
-          setLibros(librosFormateados)
+        // 1. Cargar el catálogo general 
+        const responseCat = await fetch("http://localhost:8080/api/libros")
+        let librosCat: Book[] = []
+        if (responseCat.ok) {
+          const data = await responseCat.json()
+          librosCat = data.map(formatBook)
+          setLibros(librosCat)
         }
+
+        const usuarioRaw = localStorage.getItem("usuario")
+        if (usuarioRaw) {
+          const usuario = JSON.parse(usuarioRaw)
+          
+          // 2. Cargar recomendaciones del Hero
+          const resHero = await fetch(`http://localhost:8080/api/recomendaciones/hero/${usuario.id}`)
+          if (resHero.ok) {
+            const dataHero = await resHero.json()
+            const heroFormat = dataHero.map((item: any) => {
+              const b = formatBook(item.b)
+              b.matchPercentage = item.score
+              return b
+            })
+            setLibrosHero(heroFormat)
+          } else {
+            setLibrosHero(librosCat.slice(0, 5))
+          }
+
+          // 3. LA MAGIA: Cargar filas dinámicas estilo Netflix
+          const resNetflix = await fetch(`http://localhost:8080/api/recomendaciones/netflix/${usuario.email}`)
+          if (resNetflix.ok) {
+            const dataNetflix = await resNetflix.json()
+            // Formateamos cada carrusel
+            const rowsFormat = dataNetflix.map((row: any) => ({
+              titulo: row.titulo,
+              libros: row.libros.map(formatBook)
+            }))
+            setNetflixRows(rowsFormat)
+          }
+
+        } else {
+          setLibrosHero(librosCat.slice(0, 5))
+        }
+
       } catch (error) {
         console.error("Error conectando al backend:", error)
       } finally {
         setCargando(false)
       }
     }
-    fetchLibros()
+    
+    fetchAllData()
   }, [])
 
   if (cargando) {
@@ -58,19 +101,35 @@ export default function Home() {
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
       
-      {/* 2. Le pasamos la función setLibroSeleccionado a las secciones */}
-      <HeroSection booksPool={libros} onOpenDetail={setLibroSeleccionado} />
+      <HeroSection booksPool={librosHero.length > 0 ? librosHero : libros} onOpenDetail={setLibroSeleccionado} />
       
       <section className="pt-8 pb-20">
-        <CarouselRow key="todos" titulo="Todos los libros disponibles" books={libros} onOpenDetail={setLibroSeleccionado} dismissable={false} />
-        <CarouselRow key="recomendaciones" titulo="Sugerencias del recomendador" books={libros.slice().reverse()} onOpenDetail={setLibroSeleccionado} dismissable={true} />
+        
+        {/* Generación Automática de Filas */}
+        {netflixRows.map((row, idx) => (
+          <CarouselRow 
+            key={`netflix-${idx}`} 
+            titulo={row.titulo} 
+            books={row.libros} 
+            onOpenDetail={setLibroSeleccionado} 
+            dismissable={true} 
+          />
+        ))}
+
+        {/* Fila de Respaldo: El Catálogo General Siempre al Final */}
+        <CarouselRow 
+          key="todos" 
+          titulo="Explorar todo el catálogo" 
+          books={libros} 
+          onOpenDetail={setLibroSeleccionado} 
+          dismissable={false} 
+        />
       </section>
       
       <footer className="border-t border-border px-6 md:px-12 py-8 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} Booky Tuky
       </footer>
 
-      {/* 3. Si el usuario seleccionó un libro, dibujamos el modal de detalles */}
       {libroSeleccionado && (
         <BookDetail 
           book={libroSeleccionado} 

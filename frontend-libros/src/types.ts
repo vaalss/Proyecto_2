@@ -8,4 +8,5 @@ export interface Book {
   tematica: string[]
   urlPortada: string
   año: number
+  matchPercentage?: number
 }

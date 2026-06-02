@@ -1,7 +1,6 @@
 package recomendador_libros.proyecto.repositories;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -76,32 +75,33 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
             """)
     List<String> findSimilarTitles(String tituloLibro);
 
-    @Query("MATCH (target:Libro) WHERE id(target) = $libroId " +
-            "OPTIONAL MATCH (target)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(atributoTarget) " +
-            "WITH target, collect(DISTINCT id(atributoTarget)) AS objLibro " +
-            "OPTIONAL MATCH (u:Usuario) WHERE id(u) = $usuarioId " +
-            "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(likedBook:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(atributo) "
+    @Query("MATCH (u:Usuario {email: $email})-[:LE_GUSTA]->(l:Libro) RETURN l")
+    List<Libro> findFavoritosByEmail(@Param("email") String email);
+
+    @Query("MATCH (u:Usuario) WHERE id(u) = $usuarioId " +
+            "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(attr) "
             +
-            "WITH objLibro, collect(DISTINCT id(atributo)) AS gustos " +
-            "WITH objLibro, gustos, [a IN objLibro WHERE a IN gustos] AS interseccion " +
-            "RETURN CASE " +
-            "  WHEN size(gustos) = 0 THEN toInteger(rand() * 20 + 75) " +
-            "  WHEN size(objLibro) = 0 THEN 50 " +
-            "  ELSE toInteger((toFloat(size(interseccion)) / size(objLibro)) * 100) " +
-            "END")
+            "WITH u, collect(DISTINCT id(attr)) AS userAttrs " +
+            "MATCH (b:Libro) WHERE id(b) = $libroId " +
+            "OPTIONAL MATCH (b)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(bAttr) " +
+            "WITH userAttrs, collect(DISTINCT id(bAttr)) AS bookAttrs " +
+            "WITH [a IN bookAttrs WHERE a IN userAttrs] AS intersection, bookAttrs " +
+            "RETURN CASE WHEN size(bookAttrs) = 0 THEN 50 " +
+            "ELSE toInteger((toFloat(size(intersection)) / size(bookAttrs)) * 100) END AS matchPercentage")
     Integer calcularPorcentajeMatch(@Param("usuarioId") Long usuarioId, @Param("libroId") Long libroId);
 
     @Query("MATCH (u:Usuario) WHERE id(u) = $userId " +
-            "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(liked:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(attr) "
+            "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(attr) "
             +
             "WITH u, collect(DISTINCT id(attr)) AS userAttrs " +
             "MATCH (b:Libro) " +
             "OPTIONAL MATCH (b)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(bAttr) " +
             "WITH b, userAttrs, collect(DISTINCT id(bAttr)) AS bookAttrs " +
-            "WITH b, [a IN bookAttrs WHERE a IN userAttrs] AS intersection " +
+            "WITH b, [a IN bookAttrs WHERE a IN userAttrs] AS intersection, userAttrs, bookAttrs " +
             "WITH b, " +
-            "     CASE WHEN size(bookAttrs) = 0 THEN 50 " +
+            "     CASE WHEN size(userAttrs) = 0 THEN 50 " +
+            "     WHEN size(bookAttrs) = 0 THEN 50 " +
             "     ELSE toInteger((toFloat(size(intersection)) / size(bookAttrs)) * 100) END AS score " +
-            "RETURN b, score ORDER BY score DESC")
-    List<Map<String, Object>> obtenerLibrosOrdenadosPorAfinidad(@Param("userId") Long userId);
+            "RETURN toString(id(b)) + '_' + toString(score) ORDER BY score DESC, rand() LIMIT 10")
+    List<String> obtenerIdsRecomendadosStr(@Param("userId") Long userId);
 }
