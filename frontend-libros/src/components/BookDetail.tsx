@@ -111,8 +111,9 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
 
   // ── Funciones para persistir cambios en Backend ──────────────────────────
   const toggleFavorito = async () => {
-    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-    if (!usuario.id) return;
+    const usuarioRaw = localStorage.getItem("usuario");
+    if (!usuarioRaw) return;
+    const usuario = JSON.parse(usuarioRaw);
     
     const nuevoEstado = !fav;
     setFav(nuevoEstado); // Feedback visual inmediato
@@ -124,8 +125,9 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
   };
 
   const toggleLeido = async () => {
-    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-    if (!usuario.id) return;
+    const usuarioRaw = localStorage.getItem("usuario");
+    if (!usuarioRaw) return;
+    const usuario = JSON.parse(usuarioRaw);
 
     const nuevoEstado = !read;
     setRead(nuevoEstado);
@@ -141,6 +143,8 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
     setPhase("exit");
     setTimeout(onClose, 300);
   }, [phase, onClose]);
+
+  
 
   const isIn = phase === "visible";
 
@@ -224,9 +228,12 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
                   {read ? "Leído ✓" : "Marcar leído"}
                 </button>
 
-                {/* El botón de 'No me interesa' sigue igual */}
-                <button onClick={() => setNotInterested(!notInterested)} className={`px-4 py-2 rounded-lg font-bold text-sm ${notInterested ? "bg-red-500/20 text-red-500" : "bg-card border"}`}>
-                  <ThumbsDown size={16} className="inline mr-2" /> {notInterested ? "Descartado" : "No me interesa"}
+                <button 
+                  onClick={() => setNotInterested(!notInterested)} 
+                  className={`px-4 py-2 rounded-lg font-bold text-sm ${notInterested ? "bg-red-500/20 text-red-500" : "bg-card border"}`}
+                >
+                  <ThumbsDown size={16} className="inline mr-2" /> 
+                  {notInterested ? "Descartado" : "No me interesa"}
                 </button>
               </div>
 

@@ -5,7 +5,14 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import recomendador_libros.proyecto.nodes.Usuario;
 import recomendador_libros.proyecto.repositories.UsuarioRepository;
@@ -53,30 +60,33 @@ public class UsuarioController {
     }
 
     @PostMapping("/{usuarioId}/favoritos/{libroId}")
-    public Usuario agregarFavorito(@PathVariable Long usuarioId, @PathVariable Long libroId) {
-        return usuarioService.agregarLibroFavorito(usuarioId, libroId);
+    public ResponseEntity<String> agregarFavorito(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+        usuarioRepository.hacerFavorito(usuarioId, libroId);
+        return ResponseEntity.ok("Favorito guardado");
+    }
+
+    @DeleteMapping("/{usuarioId}/favoritos/{libroId}")
+    public ResponseEntity<String> eliminarFavorito(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+        usuarioRepository.quitarFavorito(usuarioId, libroId);
+        return ResponseEntity.ok("Favorito eliminado");
     }
 
     @PostMapping("/{usuarioId}/leidos/{libroId}")
-    public Usuario agregarLeido(@PathVariable Long usuarioId, @PathVariable Long libroId) {
-        return usuarioService.agregarLibroLeido(usuarioId, libroId);
+    public ResponseEntity<String> agregarLeido(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+        usuarioRepository.hacerLeido(usuarioId, libroId);
+        return ResponseEntity.ok("Leído guardado");
+    }
+
+    @DeleteMapping("/{usuarioId}/leidos/{libroId}")
+    public ResponseEntity<String> eliminarLeido(@PathVariable Long usuarioId, @PathVariable Long libroId) {
+        usuarioRepository.quitarLeido(usuarioId, libroId);
+        return ResponseEntity.ok("Leído eliminado");
     }
 
     @PostMapping("/{usuarioId}/autores/{autorId}")
     public Usuario seguirAutor(@PathVariable Long usuarioId, @PathVariable Long autorId) {
 
         return usuarioService.seguirAutor(usuarioId, autorId);
-    }
-
-    @DeleteMapping("/{usuarioId}/favoritos/{libroId}")
-    public Usuario eliminarFavorito(@PathVariable Long usuarioId, @PathVariable Long libroId) {
-        return usuarioService.eliminarLibroFavorito(usuarioId, libroId);
-    }
-
-    @DeleteMapping("/{usuarioId}/leidos/{libroId}")
-    public Usuario eliminarLeido(@PathVariable Long usuarioId, @PathVariable Long libroId) {
-
-        return usuarioService.eliminarLibroLeido(usuarioId, libroId);
     }
 
     @DeleteMapping("/{usuarioId}/autores/{autorId}")
@@ -88,7 +98,14 @@ public class UsuarioController {
     @GetMapping("/{usuarioId}/estado/{libroId}")
     public ResponseEntity<Map<String, Object>> obtenerEstadoInteraccion(@PathVariable Long usuarioId,
             @PathVariable Long libroId) {
-        return ResponseEntity.ok(usuarioRepository.obtenerEstadoInteraccion(usuarioId, libroId));
+        // Consultamos a Neo4j usando booleanos puros
+        boolean esFavorito = usuarioRepository.isFavorito(usuarioId, libroId);
+        boolean esLeido = usuarioRepository.isLeido(usuarioId, libroId);
+
+        // Armamos el objeto en Java para que Spring no se confunda
+        return ResponseEntity.ok(Map.of(
+                "esFavorito", esFavorito,
+                "esLeido", esLeido));
     }
 
 }
