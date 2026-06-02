@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import recomendador_libros.proyecto.nodes.Usuario;
+import recomendador_libros.proyecto.repositories.UsuarioRepository;
 import recomendador_libros.proyecto.services.UsuarioService;
 
 @RestController
@@ -16,9 +17,11 @@ import recomendador_libros.proyecto.services.UsuarioService;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioRepository usuarioRepository;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
         this.usuarioService = usuarioService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping("/login")
@@ -81,4 +84,11 @@ public class UsuarioController {
 
         return usuarioService.dejarDeSeguirAutor(usuarioId, autorId);
     }
+
+    @GetMapping("/{usuarioId}/estado/{libroId}")
+    public ResponseEntity<Map<String, Object>> obtenerEstadoInteraccion(@PathVariable Long usuarioId,
+            @PathVariable Long libroId) {
+        return ResponseEntity.ok(usuarioRepository.obtenerEstadoInteraccion(usuarioId, libroId));
+    }
+
 }

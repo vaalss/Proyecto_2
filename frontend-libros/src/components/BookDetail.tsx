@@ -53,6 +53,30 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
   
   const fetchedRef = useRef(false);
 
+
+  // ── Sincronizar estado de botones con el backend ──────────────────────────
+  useEffect(() => {
+    const fetchEstado = async () => {
+      const usuarioRaw = localStorage.getItem("usuario");
+      if (!usuarioRaw) return;
+      const usuario = JSON.parse(usuarioRaw);
+      
+      try {
+        const res = await fetch(`http://localhost:8080/api/usuarios/${usuario.id}/estado/${book.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          // Actualizamos los estados con la respuesta real de Neo4j
+          setFav(data.esFavorito);
+          setRead(data.esLeido);
+        }
+      } catch (err) {
+        console.error("Error al cargar estado de interacción:", err);
+      }
+    };
+
+    fetchEstado();
+  }, [book.id]);
+
   // Animación de entrada
   useEffect(() => {
     const id = requestAnimationFrame(() => setPhase("visible"));
@@ -84,6 +108,33 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
     };
     fetchMatch();
   }, [book.id]);
+
+  // ── Funciones para persistir cambios en Backend ──────────────────────────
+  const toggleFavorito = async () => {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+    if (!usuario.id) return;
+    
+    const nuevoEstado = !fav;
+    setFav(nuevoEstado); // Feedback visual inmediato
+
+    const method = nuevoEstado ? "POST" : "DELETE";
+    await fetch(`http://localhost:8080/api/usuarios/${usuario.id}/favoritos/${book.id}`, {
+      method: method
+    });
+  };
+
+  const toggleLeido = async () => {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+    if (!usuario.id) return;
+
+    const nuevoEstado = !read;
+    setRead(nuevoEstado);
+
+    const method = nuevoEstado ? "POST" : "DELETE";
+    await fetch(`http://localhost:8080/api/usuarios/${usuario.id}/leidos/${book.id}`, {
+      method: method
+    });
+  };
 
   const handleClose = useCallback(() => {
     if (phase === "exit") return;
@@ -157,12 +208,23 @@ export default function BookDetail({ book, onClose }: BookDetailProps) {
 
               {/* Botones */}
               <div className="flex flex-wrap gap-3">
-                <button onClick={() => setFav(!fav)} className={`px-4 py-2 rounded-lg font-bold text-sm ${fav ? "bg-primary text-white" : "bg-card border"}`}>
-                  <Heart size={16} className="inline mr-2" /> {fav ? "En favoritos" : "Favoritos"}
+                <button 
+                  onClick={toggleFavorito} 
+                  className={`px-4 py-2 rounded-lg font-bold text-sm ${fav ? "bg-primary text-white" : "bg-card border"}`}
+                >
+                  <Heart size={16} className={`inline mr-2 ${fav ? "fill-current" : ""}`} /> 
+                  {fav ? "En favoritos" : "Favoritos"}
                 </button>
-                <button onClick={() => setRead(!read)} className="px-4 py-2 rounded-lg font-bold text-sm bg-card border">
-                  <CheckCircle size={16} className="inline mr-2" /> Leído
+
+                <button 
+                  onClick={toggleLeido} 
+                  className={`px-4 py-2 rounded-lg font-bold text-sm ${read ? "bg-primary/20 text-primary border border-primary/40" : "bg-card border"}`}
+                >
+                  <CheckCircle size={16} className="inline mr-2" /> 
+                  {read ? "Leído ✓" : "Marcar leído"}
                 </button>
+
+                {/* El botón de 'No me interesa' sigue igual */}
                 <button onClick={() => setNotInterested(!notInterested)} className={`px-4 py-2 rounded-lg font-bold text-sm ${notInterested ? "bg-red-500/20 text-red-500" : "bg-card border"}`}>
                   <ThumbsDown size={16} className="inline mr-2" /> {notInterested ? "Descartado" : "No me interesa"}
                 </button>
