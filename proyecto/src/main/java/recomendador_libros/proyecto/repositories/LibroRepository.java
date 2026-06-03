@@ -35,7 +35,7 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
 
             RETURN candidato.titulo
             ORDER BY score DESC
-            LIMIT 10
+            LIMIT 25
             """)
     List<String> recomendarTitulos(String email);
 
@@ -55,7 +55,7 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
 
             RETURN candidato.titulo
             ORDER BY score DESC
-            LIMIT 10
+            LIMIT 25
             """)
     List<String> recomendarPorInfluencia(String email);
 
@@ -71,7 +71,7 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
 
             RETURN libroRecomendado.titulo
             ORDER BY coincidencias DESC
-            LIMIT 5
+            LIMIT 10
             """)
     List<String> findSimilarTitles(String tituloLibro);
 
@@ -108,7 +108,7 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
             "     CASE WHEN size(userAttrs) = 0 THEN 50 " +
             "     WHEN size(bookAttrs) = 0 THEN 50 " +
             "     ELSE toInteger((toFloat(size(intersection)) / size(bookAttrs)) * 100) END AS score " +
-            "RETURN toString(id(b)) + '_' + toString(score) ORDER BY score DESC, rand() LIMIT 10")
+            "RETURN toString(id(b)) + '_' + toString(score) ORDER BY score DESC, rand() LIMIT 20")
     List<String> obtenerIdsRecomendadosStr(@Param("userId") Long userId);
 
     @Query("MATCH (u:Usuario)-[:LE_GUSTA]->(l:Libro) WHERE id(u) = $usuarioId RETURN l")

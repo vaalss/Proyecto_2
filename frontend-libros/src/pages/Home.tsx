@@ -75,7 +75,7 @@ export default function Home() {
             const filtrados = librosCat.filter(l => l.genero === genero || l.tematica.includes(genero))
             return {
               titulo: `Explora: ${genero}`,
-              libros: shuffleArray(filtrados).slice(0, 10)
+              libros: shuffleArray(filtrados).slice(0, 20)
             }
           }).filter(row => row.libros.length >= 4) 
 
