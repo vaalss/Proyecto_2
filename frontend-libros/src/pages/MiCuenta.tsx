@@ -11,7 +11,6 @@ const tabs: { id: Tab; label: string }[] = [
   { id: "configuracion", label: "Configuración" },
 ]
 
-// Lista corregida sin Ciberseguridad
 const allGenres = [
   "Ciencia Ficción", "Fantasía", "Thriller", "Misterio",
   "Historia", "Biografías", "Filosofía", "Tecnología", "Aventura",
@@ -208,14 +207,6 @@ function TabConfiguracion({ usuario }: { usuario: any }) {
           <Save className="w-4 h-4" /> {saved ? "¡Guardado!" : "Guardar cambios"}
         </button>
       </form>
-
-      <div className="rounded-xl border border-border bg-background/50 p-5 flex flex-col gap-3">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-primary">Seguridad</h3>
-        <p className="text-xs text-muted-foreground leading-relaxed">Actualiza tu contraseña periódicamente para mantener tu cuenta segura.</p>
-        <button className="flex items-center gap-2 self-start rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-bold hover:bg-secondary transition-colors">
-          <KeyRound className="w-4 h-4" /> Cambiar contraseña
-        </button>
-      </div>
 
       <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2 text-red-500">
