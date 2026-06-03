@@ -1,9 +1,11 @@
 package recomendador_libros.proyecto.controllers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import recomendador_libros.proyecto.nodes.Libro;
 import recomendador_libros.proyecto.nodes.Usuario;
+import recomendador_libros.proyecto.repositories.LibroRepository;
 import recomendador_libros.proyecto.repositories.UsuarioRepository;
 import recomendador_libros.proyecto.services.UsuarioService;
 
@@ -106,6 +110,32 @@ public class UsuarioController {
         return ResponseEntity.ok(Map.of(
                 "esFavorito", esFavorito,
                 "esLeido", esLeido));
+    }
+
+    @Autowired
+    private LibroRepository libroRepository;
+
+    @GetMapping("/{usuarioId}/perfil")
+    public ResponseEntity<Map<String, Object>> obtenerPerfilUsuario(@PathVariable Long usuarioId) {
+        try {
+            List<Libro> favoritos = libroRepository.findFavoritosByUsuarioId(usuarioId);
+            List<Libro> leidos = libroRepository.findLeidosByUsuarioId(usuarioId);
+
+            Map<String, Object> perfil = new HashMap<>();
+            perfil.put("favoritos", favoritos);
+            perfil.put("leidos", leidos);
+            perfil.put("totalFavoritos", favoritos.size());
+            perfil.put("totalLeidos", leidos.size());
+
+            // Fórmula simple de afinidad
+            int afinidad = Math.min(100, 50 + (favoritos.size() * 5) + (leidos.size() * 2));
+            perfil.put("afinidadPromedio", afinidad);
+
+            return ResponseEntity.ok(perfil);
+        } catch (Exception e) {
+            System.err.println("Error al cargar perfil: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
 }

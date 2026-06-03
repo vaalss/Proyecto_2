@@ -104,4 +104,10 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
             "     ELSE toInteger((toFloat(size(intersection)) / size(bookAttrs)) * 100) END AS score " +
             "RETURN toString(id(b)) + '_' + toString(score) ORDER BY score DESC, rand() LIMIT 10")
     List<String> obtenerIdsRecomendadosStr(@Param("userId") Long userId);
+
+    @Query("MATCH (u:Usuario)-[:LE_GUSTA]->(l:Libro) WHERE id(u) = $usuarioId RETURN l")
+    List<Libro> findFavoritosByUsuarioId(@Param("usuarioId") Long usuarioId);
+
+    @Query("MATCH (u:Usuario)-[:HA_LEIDO]->(l:Libro) WHERE id(u) = $usuarioId RETURN l")
+    List<Libro> findLeidosByUsuarioId(@Param("usuarioId") Long usuarioId);
 }
