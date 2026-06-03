@@ -22,7 +22,7 @@ export default function Home() {
     estilo: l.estilo ? l.estilo.nombre : "Sin Estilo",
     tematica: l.tematicas ? l.tematicas.map((t: any) => t.nombre) : [],
     urlPortada: l.urlPortada || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400",
-    año: l.año || 2026,
+    año: l.año || l.anio || l.year || 2026,
     matchPercentage: l.matchPercentage 
   })
 

@@ -83,7 +83,8 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
             +
             "WITH u, collect(DISTINCT id(attr)) AS historyAttrs " +
             "OPTIONAL MATCH (u)-[:PREFIERE]->(g:Genero) " +
-            "WITH u, historyAttrs + collect(DISTINCT id(g)) AS userAttrs " +
+            "WITH u, historyAttrs, collect(DISTINCT id(g)) AS prefAttrs " +
+            "WITH u, historyAttrs + prefAttrs AS userAttrs " +
             "MATCH (b:Libro) WHERE id(b) = $libroId " +
             "OPTIONAL MATCH (b)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(bAttr) " +
             "WITH userAttrs, collect(DISTINCT id(bAttr)) AS bookAttrs " +
@@ -97,7 +98,8 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
             +
             "WITH u, collect(DISTINCT id(attr)) AS historyAttrs " +
             "OPTIONAL MATCH (u)-[:PREFIERE]->(g:Genero) " +
-            "WITH u, historyAttrs + collect(DISTINCT id(g)) AS userAttrs " +
+            "WITH u, historyAttrs, collect(DISTINCT id(g)) AS prefAttrs " + // <-- Separamos el collect aquí
+            "WITH u, historyAttrs + prefAttrs AS userAttrs " + // <-- Y sumamos las listas en un paso limpio
             "MATCH (b:Libro) " +
             "OPTIONAL MATCH (b)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(bAttr) " +
             "WITH b, userAttrs, collect(DISTINCT id(bAttr)) AS bookAttrs " +

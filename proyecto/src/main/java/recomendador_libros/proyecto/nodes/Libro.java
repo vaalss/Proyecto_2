@@ -25,6 +25,7 @@ public class Libro {
     private String titulo;
     private String sinopsis;
     private String urlPortada;
+    private Integer año;
 
     // Relaciones que pueda tener el libro con demás nodos
     @Relationship(type = "ES_ESCRITO_POR", direction = Relationship.Direction.OUTGOING)
