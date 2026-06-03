@@ -81,7 +81,9 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     @Query("MATCH (u:Usuario) WHERE id(u) = $usuarioId " +
             "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(attr) "
             +
-            "WITH u, collect(DISTINCT id(attr)) AS userAttrs " +
+            "WITH u, collect(DISTINCT id(attr)) AS historyAttrs " +
+            "OPTIONAL MATCH (u)-[:PREFIERE]->(g:Genero) " +
+            "WITH u, historyAttrs + collect(DISTINCT id(g)) AS userAttrs " +
             "MATCH (b:Libro) WHERE id(b) = $libroId " +
             "OPTIONAL MATCH (b)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(bAttr) " +
             "WITH userAttrs, collect(DISTINCT id(bAttr)) AS bookAttrs " +
@@ -93,7 +95,9 @@ public interface LibroRepository extends Neo4jRepository<Libro, Long> {
     @Query("MATCH (u:Usuario) WHERE id(u) = $userId " +
             "OPTIONAL MATCH (u)-[:LE_GUSTA|HA_LEIDO]->(:Libro)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(attr) "
             +
-            "WITH u, collect(DISTINCT id(attr)) AS userAttrs " +
+            "WITH u, collect(DISTINCT id(attr)) AS historyAttrs " +
+            "OPTIONAL MATCH (u)-[:PREFIERE]->(g:Genero) " +
+            "WITH u, historyAttrs + collect(DISTINCT id(g)) AS userAttrs " +
             "MATCH (b:Libro) " +
             "OPTIONAL MATCH (b)-[:PERTENECE_A|TIENE_ESTILO|ES_ESCRITO_POR|TRATA_SOBRE]->(bAttr) " +
             "WITH b, userAttrs, collect(DISTINCT id(bAttr)) AS bookAttrs " +

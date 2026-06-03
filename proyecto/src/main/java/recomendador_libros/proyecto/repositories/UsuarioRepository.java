@@ -39,4 +39,13 @@ public interface UsuarioRepository extends Neo4jRepository<Usuario, Long> {
 
         @Query("MATCH (u:Usuario)-[r:HA_LEIDO]->(l:Libro) WHERE id(u) = $usuarioId AND id(l) = $libroId DELETE r")
         void quitarLeido(@Param("usuarioId") Long usuarioId, @Param("libroId") Long libroId);
+
+        @Query("MATCH (u:Usuario) WHERE id(u) = $usuarioId MATCH (g:Genero {nombre: $genero}) MERGE (u)-[:PREFIERE]->(g)")
+        void agregarPreferencia(@Param("usuarioId") Long usuarioId, @Param("genero") String genero);
+
+        @Query("MATCH (u:Usuario)-[r:PREFIERE]->(g:Genero) WHERE id(u) = $usuarioId AND g.nombre = $genero DELETE r")
+        void eliminarPreferencia(@Param("usuarioId") Long usuarioId, @Param("genero") String genero);
+
+        @Query("MATCH (u:Usuario)-[:PREFIERE]->(g:Genero) WHERE id(u) = $usuarioId RETURN g.nombre")
+        List<String> obtenerPreferencias(@Param("usuarioId") Long usuarioId);
 }

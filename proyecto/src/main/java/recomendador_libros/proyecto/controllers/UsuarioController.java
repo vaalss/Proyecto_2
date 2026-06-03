@@ -138,4 +138,21 @@ public class UsuarioController {
         }
     }
 
+    @PostMapping("/{usuarioId}/preferencias/{genero}")
+    public ResponseEntity<String> agregarPreferencia(@PathVariable Long usuarioId, @PathVariable String genero) {
+        usuarioRepository.agregarPreferencia(usuarioId, genero);
+        return ResponseEntity.ok("Preferencia guardada");
+    }
+
+    @DeleteMapping("/{usuarioId}/preferencias/{genero}")
+    public ResponseEntity<String> eliminarPreferencia(@PathVariable Long usuarioId, @PathVariable String genero) {
+        usuarioRepository.eliminarPreferencia(usuarioId, genero);
+        return ResponseEntity.ok("Preferencia eliminada");
+    }
+
+    @GetMapping("/{usuarioId}/preferencias")
+    public ResponseEntity<List<String>> obtenerPreferencias(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(usuarioRepository.obtenerPreferencias(usuarioId));
+    }
+
 }

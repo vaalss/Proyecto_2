@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Search, BookOpen, X, User, LogOut } from "lucide-react"
+import { Search, BookOpen, X, User, LogOut, Home } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import AdminModal from "./AdminModal"
 
@@ -9,7 +9,7 @@ export default function Navbar() {
   const [query, setQuery] = useState("")
   const [menuOpen, setMenuOpen] = useState(false)
   
-  // ─── NUEVOS ESTADOS PARA EL ADMIN ───
+  // Estados para el Admin Modal y el Usuario
   const [showAdminModal, setShowAdminModal] = useState(false)
   const [usuario, setUsuario] = useState<any>(null)
   
@@ -17,16 +17,14 @@ export default function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
-  // ─── LISTA BLANCA DE CORREOS ───
+  // ─── LISTA BLANCA DE CORREOS PARA ADMINISTRAR ───
   const ADMIN_EMAILS = [
-    "sergio@gmail.com",
-    "carlos@gmail.com",
-    "valeria@gmail.com",
-    "jose@gmail.com"
+    "sergio@uvg.edu.gt", 
+    "cris@uvg.edu.gt",
+    "admin@admin.com"
   ]
 
   useEffect(() => {
-    // Cargar usuario al iniciar el Navbar
     const usuarioGuardado = localStorage.getItem("usuario")
     if (usuarioGuardado) {
       setUsuario(JSON.parse(usuarioGuardado))
@@ -56,13 +54,18 @@ export default function Navbar() {
     navigate("/")
   }
 
-  // Comprueba si el usuario logueado está en la lista blanca
   const isAdmin = usuario && ADMIN_EMAILS.includes(usuario.email)
 
   return (
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 transition-all duration-500 ${scrolled ? "bg-card shadow-lg shadow-border/50" : "bg-gradient-to-b from-background/95 to-transparent"}`}>
-        <div className="flex items-center gap-2 shrink-0">
+        
+        {/* 1. LOGO INTERACTIVO: Al hacer clic, navega a /home */}
+        <div 
+          onClick={() => navigate("/home")}
+          className="flex items-center gap-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+          title="Ir a Pantalla Principal"
+        >
           <BookOpen className="h-6 w-6 text-primary" strokeWidth={2.5} />
           <span className="text-xl font-bold tracking-tight text-foreground select-none">
             Booky <span className="text-primary">Tuky</span>
@@ -97,7 +100,6 @@ export default function Navbar() {
 
           <div ref={menuRef} className="relative">
             <button onClick={() => setMenuOpen((v) => !v)} className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm hover:ring-2 hover:ring-primary/50 transition-all uppercase">
-              {/* Ahora muestra la primera letra de tu nombre en lugar de una A */}
               <span className="transition-transform duration-300 ease-in-out" style={{ transform: menuOpen ? "rotate(360deg)" : "rotate(0deg)" }}>
                 {usuario ? usuario.nombre.charAt(0) : "U"}
               </span>
@@ -105,11 +107,24 @@ export default function Navbar() {
 
             {/* Menú desplegable */}
             <div className="absolute right-0 mt-2 w-52 rounded-lg overflow-hidden shadow-xl border border-border bg-background" style={{ transformOrigin: "top right", transform: menuOpen ? "scale(1)" : "scale(0.92)", opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? "auto" : "none", transition: "all 200ms ease" }}>
-              <button onClick={() => { setMenuOpen(false); navigate("/mi-cuenta"); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+              
+              {/* 2. OPCIÓN: PANTALLA PRINCIPAL */}
+              <button 
+                onClick={() => { setMenuOpen(false); navigate("/home"); }} 
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                <Home className="h-4 w-4 shrink-0" /> Pantalla principal
+              </button>
+              
+              <div className="h-px bg-border" />
+
+              <button 
+                onClick={() => { setMenuOpen(false); navigate("/mi-cuenta"); }} 
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
                 <User className="h-4 w-4 shrink-0" /> Mi cuenta
               </button>
               
-              {/* BOTÓN EXCLUSIVO PARA ADMINISTRADORES */}
               {isAdmin && (
                 <button 
                   onClick={() => {
