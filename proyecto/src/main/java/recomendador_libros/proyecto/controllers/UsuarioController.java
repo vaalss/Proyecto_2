@@ -43,6 +43,22 @@ public class UsuarioController {
                 .orElse(ResponseEntity.status(401).build());
     }
 
+    @PostMapping("/registro")
+    public ResponseEntity<Usuario> registro(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String nombre = body.get("nombre");
+
+        if (usuarioRepository.findByEmail(email).isPresent()) {
+            return ResponseEntity.status(400).build();
+        }
+
+        Usuario nuevo = new Usuario();
+        nuevo.setNombre(nombre);
+        nuevo.setEmail(email);
+        Usuario guardado = usuarioRepository.save(nuevo);
+        return ResponseEntity.ok(guardado);
+    }
+
     @PostMapping
     public Usuario guardarUsuario(@RequestBody Usuario usuario) {
         return usuarioService.guardarUsuario(usuario);

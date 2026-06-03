@@ -70,7 +70,9 @@ function MarqueeRow({ covers, direction, duration }: { covers: string[], directi
 // ─── Pantalla Principal de Login ──────────────────────────────────────────────
 export default function Login() {
   const [email, setEmail] = useState("")
+  const [nombre, setNombre] = useState("")
   const [error, setError] = useState("")
+  const [esRegistro, setEsRegistro] = useState(false)
   const [portadas, setPortadas] = useState<string[]>(FALLBACK_COVERS)
   const navigate = useNavigate()
 
@@ -110,28 +112,49 @@ export default function Login() {
   const row2 = portadas.slice(third, third * 2)
   const row3 = portadas.slice(third * 2)
 
-  // 2. Fetch para el Login de usuario
+  // 2. Fetch para Login o Registro de usuario
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!email) return
-    
     setError("")
-    try {
-      const response = await fetch("http://localhost:8080/api/usuarios/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      })
 
-      if (response.ok) {
-        const usuarioData = await response.json()
-        localStorage.setItem("usuario", JSON.stringify(usuarioData))
-        navigate("/home")
-      } else {
-        setError("El correo no está registrado")
+    if (esRegistro) {
+      if (!nombre || !email) return
+      try {
+        const response = await fetch("http://localhost:8080/api/usuarios/registro", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, email })
+        })
+        if (response.ok) {
+          const usuarioData = await response.json()
+          localStorage.setItem("usuario", JSON.stringify(usuarioData))
+          navigate("/home")
+        } else if (response.status === 400) {
+          setError("El correo ya está registrado")
+        } else {
+          setError("Error al crear la cuenta")
+        }
+      } catch {
+        setError("No se pudo conectar con el servidor")
       }
-    } catch {
-      setError("No se pudo conectar con el servidor")
+    } else {
+      if (!email) return
+      try {
+        const response = await fetch("http://localhost:8080/api/usuarios/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        })
+        if (response.ok) {
+          const usuarioData = await response.json()
+          localStorage.setItem("usuario", JSON.stringify(usuarioData))
+          navigate("/home")
+        } else {
+          setError("El correo no está registrado")
+        }
+      } catch {
+        setError("No se pudo conectar con el servidor")
+      }
     }
   }
 
@@ -160,11 +183,29 @@ export default function Login() {
               </span>
             </div>
             <p className="text-sm text-muted-foreground font-medium text-balance">
-              Inicio de sesión
+              {esRegistro ? "Crear cuenta" : "Inicio de sesión"}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+            {esRegistro && (
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="nombre" className="text-sm font-medium text-foreground">
+                  Nombre
+                </label>
+                <input
+                  id="nombre"
+                  type="text"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  placeholder="Tu nombre"
+                  required
+                  autoComplete="name"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/60 transition-shadow"
+                />
+              </div>
+            )}
+
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Correo Electrónico
@@ -191,7 +232,15 @@ export default function Login() {
               type="submit"
               className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-[0.98] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary/60"
             >
-              Ingresar
+              {esRegistro ? "Registrarse" : "Ingresar"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setEsRegistro(!esRegistro); setError(""); setNombre(""); setEmail("") }}
+              className="text-sm text-foreground hover:underline text-center w-full"
+            >
+              {esRegistro ? "Ya tengo cuenta, iniciar sesión" : "¿No tienes cuenta? Crea una aquí"}
             </button>
           </form>
         </div>
