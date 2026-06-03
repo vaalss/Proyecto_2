@@ -9,12 +9,10 @@ import BookDetail from "../components/BookDetail"
 export default function Home() {
   const [libros, setLibros] = useState<Book[]>([])
   const [librosHero, setLibrosHero] = useState<Book[]>([])
-  // NUEVO: Arreglo dinámico para guardar todos los carruseles que mande el backend
   const [netflixRows, setNetflixRows] = useState<{titulo: string, libros: Book[]}[]>([]) 
   const [cargando, setCargando] = useState(true)
   const [libroSeleccionado, setLibroSeleccionado] = useState<Book | null>(null)
 
-  // Función auxiliar para formatear los libros que vienen de Neo4j al formato React
   const formatBook = (l: any): Book => ({
     id: l.id,
     titulo: l.titulo,
@@ -24,14 +22,17 @@ export default function Home() {
     estilo: l.estilo ? l.estilo.nombre : "Sin Estilo",
     tematica: l.tematicas ? l.tematicas.map((t: any) => t.nombre) : [],
     urlPortada: l.urlPortada || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400",
-    año: 2026,
-    matchPercentage: l.matchPercentage // Conservamos el porcentaje si el backend lo incluye
+    año: l.año || 2026,
+    matchPercentage: l.matchPercentage 
   })
+
+  const shuffleArray = (array: any[]) => {
+    return [...array].sort(() => Math.random() - 0.5)
+  }
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        // 1. Cargar el catálogo general 
         const responseCat = await fetch("http://localhost:8080/api/libros")
         let librosCat: Book[] = []
         if (responseCat.ok) {
@@ -44,7 +45,6 @@ export default function Home() {
         if (usuarioRaw) {
           const usuario = JSON.parse(usuarioRaw)
           
-          // 2. Cargar recomendaciones del Hero
           const resHero = await fetch(`http://localhost:8080/api/recomendaciones/hero/${usuario.id}`)
           if (resHero.ok) {
             const dataHero = await resHero.json()
@@ -53,25 +53,36 @@ export default function Home() {
               b.matchPercentage = item.score
               return b
             })
-            setLibrosHero(heroFormat)
+            setLibrosHero(shuffleArray(heroFormat).slice(0, 5))
           } else {
-            setLibrosHero(librosCat.slice(0, 5))
+            setLibrosHero(shuffleArray(librosCat).slice(0, 5))
           }
 
-          // 3. LA MAGIA: Cargar filas dinámicas estilo Netflix
+          // Cargar carruseles del backend (Sugerencias y Favoritos)
           const resNetflix = await fetch(`http://localhost:8080/api/recomendaciones/netflix/${usuario.email}`)
+          let backendRows: { titulo: string; libros: Book[] }[] = []
           if (resNetflix.ok) {
             const dataNetflix = await resNetflix.json()
-            // Formateamos cada carrusel
-            const rowsFormat = dataNetflix.map((row: any) => ({
+            backendRows = dataNetflix.map((row: any) => ({
               titulo: row.titulo,
               libros: row.libros.map(formatBook)
             }))
-            setNetflixRows(rowsFormat)
           }
 
+          // Generar carruseles temáticos extras dinámicamente
+          const generosPopulares = ["Ciencia Ficción", "Fantasía", "Misterio", "Clásicos", "Romance"]
+          const genreRows = generosPopulares.map(genero => {
+            const filtrados = librosCat.filter(l => l.genero === genero || l.tematica.includes(genero))
+            return {
+              titulo: `Explora: ${genero}`,
+              libros: shuffleArray(filtrados).slice(0, 10)
+            }
+          }).filter(row => row.libros.length >= 4) 
+
+          setNetflixRows([...backendRows, ...genreRows])
+
         } else {
-          setLibrosHero(librosCat.slice(0, 5))
+          setLibrosHero(shuffleArray(librosCat).slice(0, 5))
         }
 
       } catch (error) {
@@ -104,8 +115,6 @@ export default function Home() {
       <HeroSection booksPool={librosHero.length > 0 ? librosHero : libros} onOpenDetail={setLibroSeleccionado} />
       
       <section className="pt-8 pb-20">
-        
-        {/* Generación Automática de Filas */}
         {netflixRows.map((row, idx) => (
           <CarouselRow 
             key={`netflix-${idx}`} 
@@ -116,7 +125,6 @@ export default function Home() {
           />
         ))}
 
-        {/* Fila de Respaldo: El Catálogo General Siempre al Final */}
         <CarouselRow 
           key="todos" 
           titulo="Explorar todo el catálogo" 

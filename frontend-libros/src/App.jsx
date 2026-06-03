@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import MiCuenta from "./pages/MiCuenta" 
 import Login from './pages/Login'
 import Home from './pages/Home'
 
@@ -31,11 +32,17 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        
+        {/* AHORA MI CUENTA TAMBIÉN ESTÁ PROTEGIDA */}
+        <Route 
+          path="/mi-cuenta" 
+          element={
+            <ProtectedRoute>
+              <MiCuenta />
+            </ProtectedRoute>
+          } 
+        />
 
-        {/* Aquí agregaremos las siguientes páginas:
-          <Route path="/libro/:id" element={<ProtectedRoute><LibroDetalle /></ProtectedRoute>} />
-          <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
-        */}
       </Routes>
     </BrowserRouter>
   )

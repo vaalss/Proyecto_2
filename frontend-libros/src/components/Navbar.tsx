@@ -105,7 +105,7 @@ export default function Navbar() {
 
             {/* Menú desplegable */}
             <div className="absolute right-0 mt-2 w-52 rounded-lg overflow-hidden shadow-xl border border-border bg-background" style={{ transformOrigin: "top right", transform: menuOpen ? "scale(1)" : "scale(0.92)", opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? "auto" : "none", transition: "all 200ms ease" }}>
-              <button onClick={() => setMenuOpen(false)} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+              <button onClick={() => { setMenuOpen(false); navigate("/mi-cuenta"); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                 <User className="h-4 w-4 shrink-0" /> Mi cuenta
               </button>
               

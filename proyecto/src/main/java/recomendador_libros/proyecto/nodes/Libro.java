@@ -7,9 +7,9 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Node("Libro")
 // Generación de Getters y Setters y otros métodos usando Lombok
@@ -23,7 +23,8 @@ public class Libro {
     @GeneratedValue
     private Long id;
     private String titulo;
-    private String sinopsis; // Esto será útil para la recomendación basada en el contenido
+    private String sinopsis;
+    private String urlPortada;
 
     // Relaciones que pueda tener el libro con demás nodos
     @Relationship(type = "ES_ESCRITO_POR", direction = Relationship.Direction.OUTGOING)

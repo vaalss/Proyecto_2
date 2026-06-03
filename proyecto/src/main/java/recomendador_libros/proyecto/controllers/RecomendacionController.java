@@ -1,6 +1,7 @@
 package recomendador_libros.proyecto.controllers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,6 @@ public class RecomendacionController {
         try {
             List<Map<String, Object>> carruseles = new ArrayList<>();
 
-            // Fila 1: Recomendaciones Generales (Usando tu lógica existente)
             List<Libro> recomendados = recomendacionService.obtenerRecomendacionesParaUsuario(email);
             if (recomendados != null && !recomendados.isEmpty()) {
                 Map<String, Object> fila1 = new HashMap<>();
@@ -105,14 +105,14 @@ public class RecomendacionController {
                 carruseles.add(fila1);
             }
 
-            // Filas Dinámicas: "Porque te gustó X..."
             List<Libro> favoritos = libroRepository.findFavoritosByEmail(email);
             if (favoritos != null && !favoritos.isEmpty()) {
-                // Tomamos un máximo de 3 favoritos para no saturar la pantalla
+
+                Collections.shuffle(favoritos);
+
                 int maxFilas = Math.min(favoritos.size(), 3);
                 for (int i = 0; i < maxFilas; i++) {
                     Libro fav = favoritos.get(i);
-                    // Usamos tu método existente para encontrar similares
                     List<Libro> similares = recomendacionService.generarSugerencias(fav.getTitulo());
 
                     if (similares != null && !similares.isEmpty()) {
@@ -126,9 +126,9 @@ public class RecomendacionController {
 
             return ResponseEntity.ok(carruseles);
         } catch (Exception e) {
-            System.err.println("Error al generar carruseles Netflix: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
     }
+
 }
